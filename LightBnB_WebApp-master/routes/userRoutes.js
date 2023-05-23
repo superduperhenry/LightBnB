@@ -14,9 +14,15 @@ router.post("/", (req, res) => {
       if (!user) {
         return res.send({ error: "error" });
       }
-
       req.session.userId = user.id;
-      res.send("🤗");
+      // res.send("🤗");
+      res.json({
+        user: {
+          name: user.name,
+          email: user.email,
+          id: user.id,
+        },
+      });
     })
     .catch((e) => res.send(e));
 });
