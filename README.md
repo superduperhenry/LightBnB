@@ -35,3 +35,7 @@ npm install
 # Start server
 npm run local
 ```
+
+## Sign Up Form
+
+![Sign Up Form](/screenshots/sign_up_form.png)
