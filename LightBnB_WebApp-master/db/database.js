@@ -74,11 +74,19 @@ const addUser = function (user) {
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function (guest_id, limit = 10) {
+  // const queryString = `SELECT *
+  // FROM reservations
+  // JOIN properties ON properties.id = property_id
+  // JOIN users ON users.id = guest_id
+  // WHERE guest_id = $1
+  // LIMIT $2`;
   const queryString = `SELECT * 
   FROM reservations
-  JOIN properties ON properties.id = property_id
-  JOIN users ON users.id = guest_id
+  JOIN properties ON properties.id = reservations.property_id
+  JOIN property_reviews ON property_reviews.property_id = properties.id
   WHERE guest_id = $1
+  GROUP BY properties.id, reservations.id,
+  ORDER BY reservations.start_date
   LIMIT $2`;
 
   return pool
@@ -115,13 +123,7 @@ const getAllProperties = function (options, limit = 10) {
       : (queryString += "AND");
     queryString += ` city LIKE $${queryParams.length} `;
   }
-  if (options.owner_id) {
-    queryParams.push(`${options.owner_id}`);
-    queryParams.length === 1
-      ? (queryString += "WHERE")
-      : (queryString += "AND");
-    queryString += ` owner_id = $${queryParams.length} `;
-  }
+
   if (options.minimum_price_per_night) {
     queryParams.push(`${options.minimum_price_per_night * 100}`);
     queryParams.length === 1
@@ -150,6 +152,8 @@ const getAllProperties = function (options, limit = 10) {
   ORDER BY cost_per_night
   LIMIT $${queryParams.length};
   `;
+
+  console.log(queryString, queryParams);
   return pool
     .query(queryString, queryParams)
     .then((result) => {
@@ -182,6 +186,7 @@ const addProperty = function (property) {
     number_of_bathrooms,
     number_of_bedrooms,
   } = property;
+
   const queryString = `INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14)
   RETURNING *`;
 
