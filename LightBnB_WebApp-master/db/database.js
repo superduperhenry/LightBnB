@@ -153,7 +153,6 @@ const getAllProperties = function (options, limit = 10) {
   LIMIT $${queryParams.length};
   `;
 
-  console.log(queryString, queryParams);
   return pool
     .query(queryString, queryParams)
     .then((result) => {
