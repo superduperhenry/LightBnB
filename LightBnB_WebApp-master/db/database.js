@@ -80,12 +80,12 @@ const getAllReservations = function (guest_id, limit = 10) {
   // JOIN users ON users.id = guest_id
   // WHERE guest_id = $1
   // LIMIT $2`;
-  const queryString = `SELECT * 
+  const queryString = `SELECT properties.*, reservations.*, avg(property_reviews.rating) as average_rating 
   FROM reservations
   JOIN properties ON properties.id = reservations.property_id
   JOIN property_reviews ON property_reviews.property_id = properties.id
-  WHERE guest_id = $1
-  GROUP BY properties.id, reservations.id,
+  WHERE reservations.guest_id = $1
+  GROUP BY properties.id, reservations.id, property_reviews.id
   ORDER BY reservations.start_date
   LIMIT $2`;
 
